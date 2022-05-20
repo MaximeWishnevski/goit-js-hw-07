@@ -1,53 +1,47 @@
 import { galleryItems } from './gallery-items.js';
 // Change code below this line
-const galleryRef = document.querySelector('.gallery');
-console.log(galleryRef);
-let modal;
-const galleryMarkup = galleryItems
-  .map(
-    ({ preview, original, description }) => `<div class = "gallery__item">
-<a class="gallery__link" onclick="return false" href="${original}">
-<img
-    class="gallery__image"
-    src="${preview}"
-    data-source="${original}"
-    alt="${description}"
-/>
-</a></div>`,
-  )
-  .join('');
-galleryRef.insertAdjacentHTML('beforeend', galleryMarkup);
-galleryRef.addEventListener('click', onGalleryClick);
+const container = document.querySelector(".gallery")
+
+container.addEventListener("click", onGalleryClick);
+
+const createMarkup = galleryItems.map(({preview , original, description}) => {
+return `
+<div class="gallery__item">
+  <a class="gallery__link" href="${original}">
+    <img
+      class="gallery__image"
+      src="${preview}"
+      data-source="${original}"
+      alt="${description}"
+    />
+  </a>
+</div>
+`
+}).join('');
+
+container.insertAdjacentHTML("beforeend", createMarkup);
 
 function onGalleryClick(e) {
-  const isImage = e.target.classList.contains('gallery__image');
-  if (!isImage) {
-    return;
-  }
+    e.preventDefault();
+    const isImage = e.target.classList.contains("gallery__image");
+    if(!isImage){
+        return
+    }
+    window.addEventListener('keydown', onCloseModal);
+    const originalImageSource = e.target.dataset.source;
+    const modal = basicLightbox.create(`
+    <img src="${originalImageSource}" width="800" height="600">
+`)
+modal.show()
+  
+function onCloseModal(e) {
+    window.removeEventListener('keydown', onCloseModal);
+    if (e.code === 'Escape') {
+        modal.close();
 
-  createModalImg(e.target.dataset.source);
-  modal.show();
+    
+}
+}
 }
 
-function createModalImg(gallery) {
-  modal = basicLightbox.create(
-    ` <div class="modal">
-    <img src= "${event.target.dataset.source}">
-    </div>`,
-    {
-      onShow: () => {
-        window.addEventListener('keydown', onKeyboardClick);
-      },
-      onClose: () => {
-        window.removeEventListener('keydown', onKeyboardClick);
-      },
-    },
-  );
-}
-
-function onKeyboardClick(e) {
-  if (e.code === 'Escape') {
-    modal.close();
-  }
-}
 console.log(galleryItems);
